@@ -1,0 +1,13 @@
+[tool.poetry]
+name = "research"
+version = "0.1.0"
+description = "misc utils"
+authors = []
+packages = [{include = "research"}]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
