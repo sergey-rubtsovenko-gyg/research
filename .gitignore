@@ -1,3 +1,8 @@
 .ipynb_checkpoints
 .idea/
 .vscode/
+.databricks
+.python-version
+.venv/
+.jupyter/
+.jupyter_ystore.db
