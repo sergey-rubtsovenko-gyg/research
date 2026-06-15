@@ -6,3 +6,4 @@
 .venv/
 .jupyter/
 .jupyter_ystore.db
+__pycache__

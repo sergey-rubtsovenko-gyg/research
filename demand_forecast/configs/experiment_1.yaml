@@ -1,0 +1,10 @@
+experiment_name: "experiment_1"
+start_date: "2023-01-01"
+end_date: "2026-06-01"
+
+regular_tours:
+  end_date: "2026-05-01"
+  n_years: 3
+  n_months_buffer: 6
+  avg_tickets_per_day: 10
+  days_with_sales_share: 0.0
