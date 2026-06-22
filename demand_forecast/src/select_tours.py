@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
 import textwrap
+from pyspark.sql import functions as F
 
 from demand_forecast.src.daily_demand import (
     get_tour_option_time_slot_daily_sales,
@@ -93,3 +94,59 @@ def select_regular_tours(
     selected_tours_df = spark.sql(sql_query)
 
     return selected_tours_df
+
+
+def select_trending_tours(
+    tour_day_sales_df,
+    target_year,
+    min_growth=0.3,
+    min_sales_prev_year=1000,
+):
+    df = (
+        tour_day_sales_df
+        .withColumn('tour_month', F.month(F.to_date("tour_date")))
+        .withColumn('tour_year', F.year(F.to_date("tour_date")))
+    )
+
+    monthly_df = df.groupby('tour_id', 'tour_year', 'tour_month').agg(F.sum('tickets').alias('tickets'))
+
+    prev_year = target_year - 1
+
+    target_year_col = f"tickets_{target_year}"
+    prev_year_col = f"tickets_{prev_year}"
+
+    target_year_df = monthly_df.filter(F.col("tour_year") == target_year).withColumnRenamed("tickets", target_year_col)
+    prev_year_df = monthly_df.filter(F.col("tour_year") == prev_year).withColumnRenamed("tickets", prev_year_col)
+
+    yoy_df = (
+        target_year_df
+        .join(prev_year_df, on=["tour_id", "tour_month"], how="inner")
+        .withColumn("yoy_growth", (F.col(target_year_col) - F.col(prev_year_col)) / F.col(prev_year_col))
+    )
+
+    summary_df = yoy_df.groupBy("tour_id").agg(
+        F.avg("yoy_growth").alias("avg_yoy_growth"),
+        (F.sum(F.col("yoy_growth") * F.col(prev_year_col)) / F.sum(prev_year_col)).alias("weighted_yoy_growth"),
+        F.sum(target_year_col).alias(target_year_col),
+        F.sum(prev_year_col).alias(prev_year_col)
+    )
+
+    # trending_df = summary_df.filter(
+    #     (F.col("avg_yoy_growth") >= min_growth) &
+    #     (F.col(prev_year_col) >= min_sales_prev_year)
+    # ).orderBy(F.col("avg_yoy_growth").desc())
+
+    trending_df = summary_df.filter(
+        (F.col("weighted_yoy_growth") >= min_growth) &
+        (F.col(prev_year_col) >= min_sales_prev_year)
+    ).orderBy(F.col("weighted_yoy_growth").desc())
+
+    return trending_df
+
+    (
+        trending_df
+        .coalesce(1)
+        .write
+        # .mode('overwrite')
+        .parquet(config.trend_tours_path)
+    )

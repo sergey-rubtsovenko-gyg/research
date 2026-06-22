@@ -7,3 +7,7 @@
 .jupyter/
 .jupyter_ystore.db
 __pycache__
+/data/
+/raif/
+catboost_info/
+experiments/

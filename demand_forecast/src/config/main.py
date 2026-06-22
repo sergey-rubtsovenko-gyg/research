@@ -7,6 +7,7 @@ from demand_forecast.src.config.regular_tours import RegularToursConfig
 from demand_forecast.src.config.paths import Paths
 from demand_forecast.src.daily_demand import get_start_end_dates_for_week_aligned
 from rich import print as pprint
+from pydantic import BaseModel, Field
 
 class DatasetConfig(BaseModel):
     experiment_name: str
@@ -15,13 +16,7 @@ class DatasetConfig(BaseModel):
     regular_tours: RegularToursConfig
     start_date_weekly_granularity: str = None
     end_date_weekly_granularity: str = None
-    paths: Paths
-    root_data_path: str = "s3://gygdata/data-products/sdp/rubtsovenko/demand_forecast/experiments"
-    experiment_path: str = None
-    tour_day_sales_path: str = None
-    tour_week_sales_path: str = None
-    regular_tours_path: str = None
-    trend_tours_path: str = None
+    paths: Paths = Field(default_factory=Paths)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -35,11 +30,12 @@ class DatasetConfig(BaseModel):
         self._init_paths()
 
     def _init_paths(self):
-        self.experiment_path = os.path.join(self.root_data_path, self.experiment_name)
-        self.tour_day_sales_path = os.path.join(self.experiment_path, "tour_day_sales")
-        self.tour_week_sales_path = os.path.join(self.experiment_path, "tour_week_sales")
-        self.regular_tours_path = os.path.join(self.experiment_path, "regular_tours")
-        self.trend_tours_path = os.path.join(self.experiment_path, "trend_tours")
+        self.paths.experiment = os.path.join(self.paths.root, self.experiment_name)
+        self.paths.tour_day_sales = os.path.join(self.paths.experiment, "tour_day_sales")
+        self.paths.tour_week_sales = os.path.join(self.paths.experiment, "tour_week_sales")
+        self.paths.regular_tours = os.path.join(self.paths.experiment, "regular_tours")
+        self.paths.trend_tours = os.path.join(self.paths.experiment, "trend_tours")
+        self.paths.analytics_baseline = os.path.join(self.paths.experiment, "analytics_baseline")
 
     def print(self):
         pprint(self)

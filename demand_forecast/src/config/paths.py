@@ -5,9 +5,10 @@ import pandas as pd
 
 
 class Paths(BaseModel):
-    root_data_path: str = "s3://gygdata/data-products/sdp/rubtsovenko/demand_forecast/experiments"
-    experiment_path: str = None
-    tour_day_sales_path: str = None
-    tour_week_sales_path: str = None
-    regular_tours_path: str = None
-    trend_tours_path: str = None
+    root: str = "s3://gygdata/data-products/sdp/rubtsovenko/demand_forecast/experiments"
+    experiment: str = None
+    tour_day_sales: str = None
+    tour_week_sales: str = None
+    regular_tours: str = None
+    trend_tours: str = None
+    analytics_baseline: str = None

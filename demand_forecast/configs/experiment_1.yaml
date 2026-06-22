@@ -8,3 +8,6 @@ regular_tours:
   n_months_buffer: 6
   avg_tickets_per_day: 10
   days_with_sales_share: 0.0
+
+trending_tours:
+  end_date: "2026-05-01"

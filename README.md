@@ -25,6 +25,11 @@ jupyter lab --port 8888 --IdentityProvider.token jupyter-mcp
 pip install ipykernel -U --force-reinstall
 ```
 
+For displaying plotly plots and databricks execution progress
+```
+pip install plotly anywidget ipywidgets jupyterlab_widgets
+```
+
 3. After that one can execute `.ipynb` notebook cells on the databricks from the local machine.
 
 ### Claude Integration

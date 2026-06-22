@@ -19,4 +19,5 @@ Connect to the kernel: `research-db` and use it for code execution in the notebo
 - When installing packages, use `%pip install` inside the notebook (not `!pip install`) so packages install into the running kernel.
 - Execute cells to verify they work. Do not assume the code is correct.
 - If a cell errors, read the actual traceback before attempting a fix. Do not guess.
-
+- Never overwrite the cell content if I didn't ask you explicitly to do that. Always add code to the new cell.
+- When you are about to delete / change code, show me the diff in the console
