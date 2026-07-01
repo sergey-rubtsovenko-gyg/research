@@ -21,3 +21,7 @@ Connect to the kernel: `research-db` and use it for code execution in the notebo
 - If a cell errors, read the actual traceback before attempting a fix. Do not guess.
 - Never overwrite the cell content if I didn't ask you explicitly to do that. Always add code to the new cell.
 - When you are about to delete / change code, show me the diff in the console
+
+### Data Exploration
+
+- To answer data exploration questions about the tables, can to find particular information in the tables, use databricks-sql mcp and github mcp to read tables source code and lineage if needed.

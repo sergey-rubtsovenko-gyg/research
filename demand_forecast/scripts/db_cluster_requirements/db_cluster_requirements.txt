@@ -1,0 +1,6 @@
+rich==15.0.0
+duckdb==1.5.4
+lightgbm==4.6.0
+catboost==1.2.10
+xgboost==3.2.0
+etna[all]@git+https://github.com/etna-team/etna.git@master

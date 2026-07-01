@@ -3,7 +3,7 @@ from datetime import datetime
 import textwrap
 from pyspark.sql import functions as F
 
-from demand_forecast.src.daily_demand import (
+from demand_forecast.src.data_collection.tour_sales import (
     get_tour_option_time_slot_daily_sales,
     get_tour_daily_sales,
 )
@@ -18,14 +18,13 @@ def select_regular_tours(
     days_with_sales_share=0,
 ):
     start_date = (
-            datetime.strptime(end_date, "%Y-%m-%d")
-            - relativedelta(years=n_years)
-            - relativedelta(months=n_months_buffer)
+        datetime.strptime(end_date, "%Y-%m-%d")
+        - relativedelta(years=n_years)
+        - relativedelta(months=n_months_buffer)
     ).strftime("%Y-%m-%d")
 
     print(f"Start date: {start_date}")
     print(f"End date: {end_date}")
-    print(f"Time Range: [{start_date}, {end_date})")
 
     tour_option_time_slot_sales_df = get_tour_option_time_slot_daily_sales(
         start_range_tour_date=start_date,
@@ -97,13 +96,24 @@ def select_regular_tours(
 
 
 def select_trending_tours(
-    tour_day_sales_df,
+    end_date,
     target_year,
     min_growth=0.3,
     min_sales_prev_year=1000,
 ):
+    start_date = (
+        datetime.strptime(end_date, "%Y-%m-%d")
+        - relativedelta(years=2)
+    ).strftime("%Y-%m-%d")
+    tour_option_time_slot_sales_df = get_tour_option_time_slot_daily_sales(
+        start_range_tour_date=start_date,
+        end_range_tour_date=end_date,
+    )
+    tour_daily_sales_df = get_tour_daily_sales(tour_option_time_slot_sales_df)
+
     df = (
-        tour_day_sales_df
+        tour_daily_sales_df
+        .filter(F.col("tour_date") < end_date)
         .withColumn('tour_month', F.month(F.to_date("tour_date")))
         .withColumn('tour_year', F.year(F.to_date("tour_date")))
     )
@@ -131,22 +141,9 @@ def select_trending_tours(
         F.sum(prev_year_col).alias(prev_year_col)
     )
 
-    # trending_df = summary_df.filter(
-    #     (F.col("avg_yoy_growth") >= min_growth) &
-    #     (F.col(prev_year_col) >= min_sales_prev_year)
-    # ).orderBy(F.col("avg_yoy_growth").desc())
-
     trending_df = summary_df.filter(
         (F.col("weighted_yoy_growth") >= min_growth) &
         (F.col(prev_year_col) >= min_sales_prev_year)
     ).orderBy(F.col("weighted_yoy_growth").desc())
 
     return trending_df
-
-    (
-        trending_df
-        .coalesce(1)
-        .write
-        # .mode('overwrite')
-        .parquet(config.trend_tours_path)
-    )

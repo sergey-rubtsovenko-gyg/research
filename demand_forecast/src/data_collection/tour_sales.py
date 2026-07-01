@@ -1,5 +1,6 @@
 from pyspark.sql import functions as F
 import pandas as pd
+from datetime import date
 
 # just get the spark object already created in databricks
 from demand_forecast.src.spark_utils import spark
@@ -9,10 +10,14 @@ def get_start_end_dates_for_week_aligned(start_date, end_date):
     start_ts = pd.Timestamp(start_date)
     end_ts = pd.Timestamp(end_date)
     week_aligned_start = start_ts - pd.Timedelta(days=start_ts.dayofweek)
-    week_aligned_end = end_ts + pd.Timedelta(days=6 - end_ts.dayofweek)
+    week_aligned_end = end_ts + pd.Timedelta(days=7 - end_ts.dayofweek)
 
     week_aligned_start = week_aligned_start.strftime('%Y-%m-%d')
     week_aligned_end = week_aligned_end.strftime('%Y-%m-%d')
+
+    today = date.today().strftime('%Y-%m-%d')
+    if today < week_aligned_end:
+        raise ValueError(f'Today={today} is before week_aligned_end={week_aligned_end}')
 
     return week_aligned_start, week_aligned_end
 
@@ -89,9 +94,9 @@ def get_tour_daily_sales(tour_option_daily_sales_df):
 def get_tour_weekly_sales(tour_option_time_slot_sales_df):
     tour_weekly_sales_df = (
         tour_option_time_slot_sales_df
-        .withColumn("tour_week", F.date_trunc("week", F.col("tour_date")).cast("date")) # start date of the week
+        .withColumn("tour_week_start_date", F.date_trunc("week", F.col("tour_date")).cast("date")) # start date of the week
         # .withColumn('activity_week', F.date_format('activity_week', "yyyy-MM-dd"))
-        .groupby('tour_id', 'tour_week').agg(
+        .groupby('tour_id', 'tour_week_start_date').agg(
             F.sum('tickets').alias('tickets'),
         )
     )

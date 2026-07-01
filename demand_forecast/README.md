@@ -69,3 +69,22 @@ first write query in the colsole, then add it to the cell in the notebook
 
 when I ask data exploration questions or writing queries requests, don't look for the tables locally, use databricks mcp and github for the source tables to decide which tables to use
 ```
+
+## Create DB Cluster
+
+The demand forecast has package dependencies that must be installed on the cluster.
+Use the bash script for the cluster init stage to installed once and have in all notebook sessions.
+
+1) Copy scripts to s3
+```
+aws_login_dwh
+
+aws s3 cp --recursive \
+    demand_forecast/scripts/db_cluster_requirements/ \
+    s3://gygdata/data-products/sdp/rubtsovenko/demand_forecast/requirements/
+
+```
+
+2) Create a cluster and specify init step pointing to the uploaded bash script
+
+<img src="docs/images/db_cluster_init.png" width="600"/>

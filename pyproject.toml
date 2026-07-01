@@ -3,10 +3,13 @@ name = "research"
 version = "0.1.0"
 description = "misc utils"
 authors = []
-packages = [{include = "research"}]
+packages = [
+    {include = "research"},
+    { include = "demand_forecast" },
+]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = "~3.11"
 
 [build-system]
 requires = ["poetry-core"]

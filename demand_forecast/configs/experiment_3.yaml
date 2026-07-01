@@ -1,6 +1,6 @@
-experiment_name: "experiment_1"
+experiment_name: "experiment_3"
 start_date: "2023-01-01"
-end_date: "2026-06-01"
+end_date: "2026-06-20"
 
 regular_tours:
   end_date: "2026-05-01"
@@ -10,7 +10,11 @@ regular_tours:
   days_with_sales_share: 0.0
 
 trend_tours:
-  end_date: "2026-05-01"
+  end_date: "2026-06-01"
   target_year: 2026
   min_growth: 0.3
   min_sales_prev_year: 1000
+
+analytics_baseline:
+  start_date: '2026-01-01'
+  end_date: '2026-06-20'

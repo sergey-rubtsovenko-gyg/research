@@ -2,7 +2,21 @@
 
 Collection of research Projects
 
-# Jupyter + Databricks + Claude
+# Python venv
+
+Prerequisites:
+- pyenv and python version specidied in `pyproject.toml`.
+
+Exexute:
+```
+poetry install
+```
+
+Install databricks-connect to use this venv to run code in databricks.
+
+# Jupyter / VScoce .ipynb notebook + Databricks + Claude
+
+I can use `.ipynb` notebook in Jupyter or VSCode with Claude and execute code on databricks.
 
 ## Usage
 
@@ -10,10 +24,12 @@ Collection of research Projects
 pyenv versions
 pyenv activate jupyter-mcp
 
+jupyter lab --port 8001 --IdentityProvider.token jupyter-mcp
+PYTHONPATH=$(pwd) jupyter lab --port 8001 --IdentityProvider.token jupyter-mcp
 jupyter lab --port 8888 --IdentityProvider.token jupyter-mcp
 ```
 
-## Install
+## Setup
 
 ### Databricks Connector
 
@@ -37,7 +53,12 @@ pip install plotly anywidget ipywidgets jupyterlab_widgets
 Follow [this guide](https://www.reviewnb.com/claude-code-with-jupyter-notebooks) to install mcp for local jupyter server.
 
 1. Install jupyter server
+
 2. Install mcp for claude
+    - setup correct databricks token
+    - setup JUPYTER_URL (e.g. `http://localhost:8001`)
+    - setup `JUPYTER_TOKEN=jupyter-mcp`.
+
 3. Create a jupyter kernel with `.venv` that is connected to Databricks
 
 ```
