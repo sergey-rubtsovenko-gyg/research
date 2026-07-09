@@ -23,9 +23,9 @@ class DatasetConfig(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
-        self._post_init()
+        self._init()
 
-    def _post_init(self):
+    def _init(self):
         self.start_date_weekly_granularity, self.end_date_weekly_granularity = get_start_end_dates_for_week_aligned(
             start_date=self.start_date,
             end_date=self.end_date,
@@ -38,6 +38,7 @@ class DatasetConfig(BaseModel):
         self.preprocessing.path = os.path.join(self.experiment_path, 'preprocessing')
         self.preprocessing.tour_day_sales_path = os.path.join(self.preprocessing.path, 'tour_day_sales')
         self.preprocessing.tour_week_sales_path = os.path.join(self.preprocessing.path, 'tour_week_sales')
+        self.preprocessing.tour_week_inference_path = os.path.join(self.preprocessing.path, 'tour_week_inference')
 
 
         self.modelling.path = os.path.join(self.experiment_path, 'modelling')

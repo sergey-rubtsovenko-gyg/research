@@ -2,7 +2,21 @@
 
 ### Launch
 
-Connect to the kernel: `research-db` and use it for code execution in the notebook cells. 
+- Connect to the kernel: `research-db` and use it for code execution in the notebook cells. 
+
+- When I tell you to work in a certain notebook, you must use the kernel attached to the notebook. Find the notebook attached to the kernel using the following command:
+    ```
+    BASE="http://localhost:8001"
+    TOKEN="jupyter-mcp"
+
+    {
+    echo "KERNEL_ID KERNEL_NAME NOTEBOOK"
+    curl -s "$BASE/api/sessions?token=$TOKEN" \
+        | jq -r '.[] | "\(.kernel.id) \(.kernel.name) \(.path)"'
+    } | column -t
+    ```
+- When you connect to the kernel, print the name and the id of the kernel, you connected to.
+- Cells in the notebook count from 0.
 
 ### Tool preference
 

@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 
 def get_wape(actual, forecast, precision=2):
@@ -28,9 +29,22 @@ def discard_nulls(df, actual_col, forecast_col):
     return df
 
 
-def get_metrics(df, actual_col, forecast_col):
+def get_micro_metrics(df, actual_col, forecast_col):
     df = discard_nulls(df, actual_col, forecast_col)
     wape_score = get_wape(df[actual_col], df[forecast_col])
     bias_score = get_bias(df[actual_col], df[forecast_col])
-    print(f'WAPE: {wape_score}')
-    print(f'bias: {bias_score}')
+    print(f'WAPE (micro): {wape_score}')
+    print(f'bias (micro): {bias_score}')
+
+
+def get_macro_metrics(df, actual_col, forecast_col):
+    df = discard_nulls(df, actual_col, forecast_col)
+    metrics_per_tour = (
+        df.groupby('tour_id', observed=True).apply(lambda g: pd.Series({
+            'wape': get_wape(g[actual_col], g[forecast_col]),
+            'bias': get_bias(g[actual_col], g[forecast_col]),
+        }), include_groups=False)
+        .reset_index()
+    )
+    print(f"WAPE (macro): {metrics_per_tour['wape'].mean()}")
+    print(f"bias (macro): {metrics_per_tour['bias'].mean()}")

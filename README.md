@@ -26,7 +26,6 @@ pyenv activate jupyter-mcp
 
 jupyter lab --port 8001 --IdentityProvider.token jupyter-mcp
 PYTHONPATH=$(pwd) jupyter lab --port 8001 --IdentityProvider.token jupyter-mcp
-jupyter lab --port 8888 --IdentityProvider.token jupyter-mcp
 ```
 
 ## Setup

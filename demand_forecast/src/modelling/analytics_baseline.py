@@ -77,3 +77,65 @@ def get_tour_week_scaling_factor(tour_week_sales_df):
     )
     tour_week_sales_with_factor_df = tour_week_sales_with_factor_df.drop('date')
     return tour_week_sales_with_factor_df
+
+
+
+
+def get_tour_week_scaling_factor_tickets_and_demand(ts_tour_week_df):
+    ts_tour_week_df = ts_tour_week_df.withColumn('date', F.col('tour_week_start_date'))
+
+    w_lag = Window.partitionBy("tour_id").orderBy("date")
+    ts_tour_week_df = (
+        ts_tour_week_df
+        .withColumn('tickets_lag1y', F.lag("tickets", 52).over(w_lag))
+        .withColumn('demand_lag1y', F.lag("demand", 52).over(w_lag))
+    )
+
+    ts_tour_week_df.createOrReplaceTempView("ts_tour_week_df")
+
+    scaling_factor_df = spark.sql("""
+    SELECT
+        pivot_dates.tour_id
+        , pivot_dates.date AS pivot_date
+        , prev_dates.date AS date
+        , ROUND(
+            LEAST(1 / ceil(DATEDIFF(DAY, prev_dates.date, pivot_dates.date) / 30), 1), 
+            2
+        ) AS weight
+        , prev_dates.tickets
+        , prev_dates.tickets_lag1y
+        , prev_dates.demand
+        , prev_dates.demand_lag1y
+    FROM ts_tour_week_df AS pivot_dates
+    LEFT JOIN ts_tour_week_df AS prev_dates ON 
+        pivot_dates.tour_id = prev_dates.tour_id
+        AND prev_dates.date >= pivot_dates.date - INTERVAL '1 year' 
+        AND prev_dates.date <= pivot_dates.date 
+    WHERE 
+        prev_dates.tickets_lag1y IS NOT NULL
+    ORDER BY
+        tour_id
+        , pivot_date
+        , date
+    """)
+
+    scaling_factor_df = (
+        scaling_factor_df
+        .groupBy('tour_id', 'pivot_date').agg(
+            (
+                F.sum(F.col('tickets') * F.col('weight'))
+                / F.sum(F.col('tickets_lag1y') * F.col('weight'))
+            ).alias('tickets_scaling_factor'),
+            (
+                F.sum(F.col('demand') * F.col('weight'))
+                / F.sum(F.col('demand_lag1y') * F.col('weight'))
+            ).alias('demand_scaling_factor'),
+        )
+        .withColumn('tickets_scaling_factor_clip_2_5', F.least(F.col('tickets_scaling_factor'), F.lit(2.5)))
+        .withColumn('demand_scaling_factor_clip_2_5', F.least(F.col('demand_scaling_factor'), F.lit(2.5)))
+        .withColumnRenamed('pivot_date', 'date')
+    )
+
+    ts_tour_week_with_factor_df = ts_tour_week_df.join(scaling_factor_df, on=['tour_id', 'date'], how='left')
+    ts_tour_week_with_factor_df = ts_tour_week_with_factor_df.drop('date', 'tickets_lag1y', 'demand_lag1y')
+    return ts_tour_week_with_factor_df

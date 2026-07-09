@@ -88,3 +88,35 @@ aws s3 cp --recursive \
 2) Create a cluster and specify init step pointing to the uploaded bash script
 
 <img src="docs/images/db_cluster_init.png" width="600"/>
+
+## Find Jupyter kernels and notebook
+
+```
+BASE="http://localhost:8001"
+TOKEN="jupyter mcp"
+```
+
+```
+curl -s "$BASE/api/sessions?token=$TOKEN" \
+  | jq -r '.[] | "\(.kernel.id) | \(.kernel.name) | \(.path)"'
+```
+
+```
+{
+  echo "KERNEL_ID KERNEL_NAME NOTEBOOK"
+  curl -s "$BASE/api/sessions?token=$TOKEN" \
+    | jq -r '.[] | "\(.kernel.id) \(.kernel.name) \(.path)"'
+} | column -t
+```
+
+All together:
+```
+BASE="http://localhost:8001"
+TOKEN="jupyter-mcp"
+
+{
+  echo "KERNEL_ID KERNEL_NAME NOTEBOOK"
+  curl -s "$BASE/api/sessions?token=$TOKEN" \
+    | jq -r '.[] | "\(.kernel.id) \(.kernel.name) \(.path)"'
+} | column -t
+```

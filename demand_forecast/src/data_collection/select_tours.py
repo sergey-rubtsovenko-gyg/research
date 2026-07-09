@@ -147,3 +147,28 @@ def select_trending_tours(
     ).orderBy(F.col("weighted_yoy_growth").desc())
 
     return trending_df
+
+
+def tours_low_zero_share(regular_tours_df, tour_week_sales_df, date_col='date', start_date=None, end_date=None):
+    df = tour_week_sales_df.join(regular_tours_df.select('tour_id'), 'tour_id', 'inner')
+    print('df rows counts:', df.count())
+    print('Input Tours counts:', df.select('tour_id').distinct().count())
+
+    if start_date is not None and end_date is not None:
+        print('Filtering date period')
+        df = df.filter(
+            (F.col(date_col) >= start_date)
+            & (F.col(date_col) < end_date)
+        )
+
+    tours_df = (
+        df
+        .groupby('tour_id').agg(
+            F.count('*').alias('n'),
+            F.sum(F.when(F.col('tickets') == 0, 1).otherwise(0)).alias('n_zero'),
+        )
+        .withColumn('zero_share', F.round(F.col('n_zero') / F.col('n'), 4))
+    )
+    tours_low_zero_share_df = tours_df.filter(F.col('zero_share') < 0.1).select('tour_id')
+    print('Output Tours counts:', tours_low_zero_share_df.select('tour_id').distinct().count())
+    return tours_low_zero_share_df

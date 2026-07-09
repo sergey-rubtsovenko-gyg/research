@@ -18,6 +18,7 @@ class Preprocessing(BaseModel):
     path: str = None
     tour_day_sales_path: str = None
     tour_week_sales_path: str = None
+    tour_week_inference_path: str = None
 
 
 class Modelling(BaseModel):

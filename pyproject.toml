@@ -10,6 +10,18 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "~3.11"
+rich = "15.0.0"
+duckdb = "1.5.4"
+lightgbm = "4.6.0"
+catboost = "1.2.10"
+xgboost = "3.2.0"
+etna = {git = "https://github.com/etna-team/etna.git", rev = "master", extras = ["all"]}
+
+[tool.poetry.group.dev.dependencies]
+# Local-only: lets you connect to Databricks from your laptop.
+# Excluded from the BYOC image (Dockerfile runs `poetry install --without dev`)
+# because on the cluster the runtime's bundled PySpark is used instead.
+databricks-connect = "15.4.25"
 
 [build-system]
 requires = ["poetry-core"]
