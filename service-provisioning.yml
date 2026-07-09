@@ -1,0 +1,11 @@
+# Consumed by the getyourguide/service-provisioning controller (GitHub webhook ->
+# provisions ECR repo(s) + IAM). PLACEHOLDERS below (owner, registries) must be
+# confirmed with the SDP/platform team before this is merged.
+service:
+  name: demand-forecast
+  owner: sdp
+  namespace: demand-forecast
+  has_custom_iam_policy: true   # needed to read/write s3://gygdata/.../demand_forecast/ paths
+  images:
+  - 130607246975.dkr.ecr.eu-central-1.amazonaws.com/service/demand-forecast
+  - 226747981948.dkr.ecr.eu-central-1.amazonaws.com/service/demand-forecast
